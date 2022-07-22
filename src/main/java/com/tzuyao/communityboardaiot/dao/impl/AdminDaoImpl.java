@@ -82,7 +82,7 @@ public class AdminDaoImpl implements AdminDao {
     }
 
     @Override
-    public void deleteAdminById(Integer adminId) {
+    public void deleteAdmin(Integer adminId) {
 
         String sql = "DELETE FROM admin WHERE admin_id = :adminId;";
 

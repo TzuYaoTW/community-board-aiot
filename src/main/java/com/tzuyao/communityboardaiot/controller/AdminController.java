@@ -52,7 +52,7 @@ public class AdminController {
     @DeleteMapping("/admins/{adminId}")
     public ResponseEntity<?> deleteAdmin(@PathVariable Integer adminId){
 
-        adminService.deleteAdminById(adminId);
+        adminService.deleteAdmin(adminId);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }

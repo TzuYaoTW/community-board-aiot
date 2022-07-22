@@ -13,7 +13,7 @@ public interface AdminService {
 
     Admin getAdminById(Integer adminId);
 
-    void deleteAdminById(Integer adminId);
+    void deleteAdmin(Integer adminId);
 
     void updateAdmin(Integer adminId, AdminRequest adminRequest);
 
