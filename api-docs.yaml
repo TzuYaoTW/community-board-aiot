@@ -1,0 +1,335 @@
+openapi: 3.0.1
+info:
+  title: iBoard 社區公佈欄(後端Spring boot)
+  version: 1.0.0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+tags:
+- name: 住戶 CRUD
+- name: 管理員 CRUD
+paths:
+  /users/{userId}:
+    get:
+      tags:
+      - 住戶 CRUD
+      summary: 取得住戶資料
+      description: 透過userId取得住戶資料並回傳前端
+      operationId: getUserById
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/User'
+    put:
+      tags:
+      - 住戶 CRUD
+      summary: 修改住戶資料
+      description: 透過 userId 修改住戶資料
+      operationId: updateUser
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      responses:
+        "404":
+          description: 無此 住戶 ID
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Admin'
+    delete:
+      tags:
+      - 住戶 CRUD
+      summary: 刪除住戶資料
+      description: 透過 userId 刪除住戶資料
+      operationId: deleteUser
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/User'
+  /admins/{adminId}:
+    get:
+      tags:
+      - 管理員 CRUD
+      summary: 透過adminId查詢管理員資料
+      description: 透過adminId查詢管理員資料
+      operationId: getAdminById
+      parameters:
+      - name: adminId
+        in: path
+        description: 管理員 ID 編號
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "404":
+          description: '無此管理員 ID '
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Admin'
+    put:
+      tags:
+      - 管理員 CRUD
+      summary: 修改管理員資料
+      description: 透過adminId修改管理員資料
+      operationId: updateAdmin
+      parameters:
+      - name: adminId
+        in: path
+        description: 管理員 ID 編號
+        required: true
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminRequest'
+        required: true
+      responses:
+        "404":
+          description: '無此管理員 ID '
+        "200":
+          description: OK
+          content:
+            application/json: {}
+    delete:
+      tags:
+      - 管理員 CRUD
+      summary: 刪除管理員資料
+      description: 透過adminId刪除管理員資料
+      operationId: deleteAdmin
+      parameters:
+      - name: adminId
+        in: path
+        description: 管理員 ID 編號
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /users:
+    get:
+      tags:
+      - 住戶 CRUD
+      summary: 取得所有住戶資料
+      description: 取得所有住戶資料
+      operationId: getUsers
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      tags:
+      - 住戶 CRUD
+      summary: 新增住戶資料
+      description: 新增住戶資料，完成後回傳新增的住戶資訊
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/User'
+  /admins:
+    get:
+      tags:
+      - 管理員 CRUD
+      summary: 取得所有管理員
+      description: 取得所有管理員資料
+      operationId: getAdmins
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Admin'
+    post:
+      tags:
+      - 管理員 CRUD
+      summary: 新增管理員資料
+      description: 新增管理員資料
+      operationId: createAdmin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Admin'
+components:
+  schemas:
+    UserRequest:
+      required:
+      - userAddress
+      - userName
+      - userTel
+      type: object
+      properties:
+        userFaceId:
+          type: string
+          description: 住戶 ID
+        userName:
+          type: string
+          description: 住戶姓名
+        userTel:
+          type: string
+          description: 住戶聯絡電話
+        userAddress:
+          type: string
+          description: 住戶住址
+    Admin:
+      type: object
+      properties:
+        adminId:
+          type: integer
+          description: 管理員 ID
+          format: int32
+        adminAccount:
+          type: string
+          description: 管理員帳號
+        adminPassword:
+          type: string
+          description: 管理員密碼
+        adminName:
+          type: string
+          description: 管理員姓名
+        adminTel:
+          type: string
+          description: 管理員電話
+        adminEmail:
+          type: string
+          description: 管理員 email
+        adminAddress:
+          type: string
+          description: 管理員地址
+        createdDate:
+          type: string
+          description: 管理員資料被創建時間
+          format: date-time
+        lastModifiedDate:
+          type: string
+          description: 管理員資料最後修改時間
+          format: date-time
+    AdminRequest:
+      required:
+      - adminAccount
+      - adminAddress
+      - adminEmail
+      - adminName
+      - adminPassword
+      - adminTel
+      type: object
+      properties:
+        adminAccount:
+          type: string
+          description: 管理員帳號
+        adminPassword:
+          type: string
+          description: 管理員密碼
+        adminName:
+          type: string
+          description: 管理員姓名
+        adminTel:
+          type: string
+          description: 管理員電話
+        adminEmail:
+          type: string
+          description: 管理員信箱
+        adminAddress:
+          type: string
+          description: 管理員地址
+    User:
+      type: object
+      properties:
+        userId:
+          type: integer
+          description: 住戶 ID
+          format: int32
+        userFaceId:
+          type: string
+          description: 住戶 人臉辨識 ID
+        userName:
+          type: string
+          description: 住戶姓名
+        userTel:
+          type: string
+          description: 住戶聯絡電話
+        userAddress:
+          type: string
+          description: 住戶地址
+        createdDate:
+          type: string
+          description: 住戶資料被建立時間
+          format: date-time
+        lastModifiedDate:
+          type: string
+          description: 住戶資料最後修改時間
+          format: date-time
