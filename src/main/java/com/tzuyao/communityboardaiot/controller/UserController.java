@@ -33,7 +33,12 @@ public class UserController {
     private UserService userService;
 
     // 查詢所有使用者列表
-    @Operation(summary = "取得所有住戶資料", description = "取得所有住戶資料")
+    @Operation(summary = "住戶資料列表(模糊查詢+分頁+排序)", description = "可模糊查詢姓名，" +
+            "依照前端請求orderBy指定項目排序(預設為創建資料時間)，" +
+            "依照前端請求sort指定排序順序(DESC由大到小排序)，" +
+            "依照前端請求limit限制每頁筆數(預設5)，" +
+            "依照前端請求offset設定跳過筆數(預設0，代表第一頁)。" +
+            "回傳總數count讓前端計算分頁。")
     @GetMapping("/users")
     public ResponseEntity<Page<User>> getUsers(@RequestParam(required = false) String search,
                                                @RequestParam(defaultValue = "created_date") String orderBy,

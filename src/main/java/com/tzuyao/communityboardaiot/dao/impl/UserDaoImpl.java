@@ -26,7 +26,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> getUsers(UserQueryParams userQueryParams) {
 
-        String sql = "SELECT user_id, user_name, user_tel, user_address," +
+        String sql = "SELECT user_id, user_face_id, user_name, user_tel, user_address," +
                 " created_date, last_modified_date FROM user WHERE 1=1";
 
         Map<String, Object> map = new HashMap<>();
@@ -49,9 +49,14 @@ public class UserDaoImpl implements UserDao {
     @Override
     public Integer countUser(UserQueryParams userQueryParams) {
 
-        String sql = "SELECT COUNT(*) FROM user WHERE 1=1;";
+        String sql = "SELECT COUNT(*) FROM user WHERE 1=1";
 
         Map<String, Object> map = new HashMap<>();
+
+        if (userQueryParams.getSearch() != null){
+            sql = sql + " AND user_name LIKE :search";
+            map.put("search", "%" + userQueryParams.getSearch() + "%");
+        }
 
         Integer total = namedParameterJdbcTemplate.queryForObject(sql, map, Integer.class);
 
