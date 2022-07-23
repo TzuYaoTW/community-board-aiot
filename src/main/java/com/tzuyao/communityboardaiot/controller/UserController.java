@@ -1,9 +1,11 @@
 package com.tzuyao.communityboardaiot.controller;
 
+import com.tzuyao.communityboardaiot.dto.UserQueryParams;
 import com.tzuyao.communityboardaiot.dto.UserRequest;
 import com.tzuyao.communityboardaiot.model.Admin;
 import com.tzuyao.communityboardaiot.model.User;
 import com.tzuyao.communityboardaiot.service.UserService;
+import com.tzuyao.communityboardaiot.util.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,12 +16,16 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @Tag(name="住戶 CRUD")
+@Validated
 @RestController
 public class UserController {
 
@@ -29,9 +35,30 @@ public class UserController {
     // 查詢所有使用者列表
     @Operation(summary = "取得所有住戶資料", description = "取得所有住戶資料")
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getUsers() {
-        List<User> userList = userService.getUsers();
-        return ResponseEntity.status(HttpStatus.OK).body(userList);
+    public ResponseEntity<Page<User>> getUsers(@RequestParam(required = false) String search,
+                                               @RequestParam(defaultValue = "created_date") String orderBy,
+                                               @RequestParam(defaultValue = "desc") String sort,
+                                               @RequestParam(defaultValue = "5") @Max(1000) @Min(0) Integer limit,
+                                               @RequestParam(defaultValue = "0") @Min(0) Integer offset
+                                               ) {
+        UserQueryParams userQueryParams = new UserQueryParams();
+        userQueryParams.setSearch(search);
+        userQueryParams.setOrderBy(orderBy);
+        userQueryParams.setSort(sort);
+        userQueryParams.setLimit(limit);
+        userQueryParams.setOffset(offset);
+
+        List<User> userList = userService.getUsers(userQueryParams);
+
+        Integer total = userService.countUser(userQueryParams);
+
+        Page<User> page = new Page();
+        page.setLimit(limit);
+        page.setOffset(offset);
+        page.setTotal(total);
+        page.setResults(userList);
+
+        return ResponseEntity.status(HttpStatus.OK).body(page);
     }
 
     @Operation(summary = "取得住戶資料", description = "透過userId取得住戶資料並回傳前端")

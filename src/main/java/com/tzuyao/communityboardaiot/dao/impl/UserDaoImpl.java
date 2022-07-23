@@ -1,6 +1,7 @@
 package com.tzuyao.communityboardaiot.dao.impl;
 
 import com.tzuyao.communityboardaiot.dao.UserDao;
+import com.tzuyao.communityboardaiot.dto.UserQueryParams;
 import com.tzuyao.communityboardaiot.dto.UserRequest;
 import com.tzuyao.communityboardaiot.model.User;
 import com.tzuyao.communityboardaiot.rowmapper.UserRowMapper;
@@ -23,16 +24,38 @@ public class UserDaoImpl implements UserDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
-    public List<User> getUsers() {
+    public List<User> getUsers(UserQueryParams userQueryParams) {
 
         String sql = "SELECT user_id, user_name, user_tel, user_address," +
-                " created_date, last_modified_date FROM user;";
+                " created_date, last_modified_date FROM user WHERE 1=1";
 
         Map<String, Object> map = new HashMap<>();
+
+        if (userQueryParams.getSearch() != null){
+            sql = sql + " AND user_name LIKE :search";
+            map.put("search", "%" + userQueryParams.getSearch() + "%");
+        }
+        sql = sql + " ORDER BY " + userQueryParams.getOrderBy() + " " + userQueryParams.getSort();
+
+        sql = sql + " LIMIT :limit OFFSET :offset ";
+        map.put("limit", userQueryParams.getLimit());
+        map.put("offset", userQueryParams.getOffset());
 
         List<User> userList = namedParameterJdbcTemplate.query(sql, map, new UserRowMapper());
 
         return userList;
+    }
+
+    @Override
+    public Integer countUser(UserQueryParams userQueryParams) {
+
+        String sql = "SELECT COUNT(*) FROM user WHERE 1=1;";
+
+        Map<String, Object> map = new HashMap<>();
+
+        Integer total = namedParameterJdbcTemplate.queryForObject(sql, map, Integer.class);
+
+        return total;
     }
 
     @Override

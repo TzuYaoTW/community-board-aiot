@@ -1,6 +1,7 @@
 package com.tzuyao.communityboardaiot.service.impl;
 
 import com.tzuyao.communityboardaiot.dao.UserDao;
+import com.tzuyao.communityboardaiot.dto.UserQueryParams;
 import com.tzuyao.communityboardaiot.dto.UserRequest;
 import com.tzuyao.communityboardaiot.model.User;
 import com.tzuyao.communityboardaiot.service.UserService;
@@ -16,8 +17,13 @@ public class UserServiceImpl implements UserService {
     private UserDao userDao;
 
     @Override
-    public List<User> getUsers() {
-        return userDao.getUsers();
+    public List<User> getUsers(UserQueryParams userQueryParams) {
+        return userDao.getUsers(userQueryParams);
+    }
+
+    @Override
+    public Integer countUser(UserQueryParams userQueryParams) {
+        return userDao.countUser(userQueryParams);
     }
 
     @Override
