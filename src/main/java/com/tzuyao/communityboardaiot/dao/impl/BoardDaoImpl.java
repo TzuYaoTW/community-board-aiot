@@ -81,12 +81,13 @@ public class BoardDaoImpl implements BoardDao {
     @Override
     public void updateBoard(Integer boardId, BoardRequest boardRequest) {
         String sql = "UPDATE board SET board_category = :boardCategory, board_title = :boardTitle, " +
-                "board_description = :boardDescription, last_modified_date = :lastModifiedDate";
+                "board_description = :boardDescription, last_modified_date = :lastModifiedDate WHERE board_id = :boardId";
         Map<String, Object> map = new HashMap<>();
         map.put("boardCategory", boardRequest.getBoardCategory().toString());
         map.put("boardTitle", boardRequest.getBoardTitle());
         map.put("boardDescription", boardRequest.getBoardDescription());
         map.put("lastModifiedDate", new Date());
+        map.put("boardId", boardId);
 
         namedParameterJdbcTemplate.update(sql, map);
     }
