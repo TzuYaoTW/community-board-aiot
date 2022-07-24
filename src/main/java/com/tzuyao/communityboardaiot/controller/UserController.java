@@ -24,7 +24,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.List;
 
-@Tag(name="住戶 CRUD")
+@Tag(name="住戶 CRUD", description = "管理員可以新增查詢修改刪除關於住戶的資料")
 @Validated
 @RestController
 public class UserController {

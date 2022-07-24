@@ -28,8 +28,6 @@ public class AdminController {
 
     @Autowired
     private AdminService adminService;
-
-
     // 查詢管理員列表
     @Operation(summary = "取得所有管理員", description = "取得所有管理員資料")
     @GetMapping("/admins")

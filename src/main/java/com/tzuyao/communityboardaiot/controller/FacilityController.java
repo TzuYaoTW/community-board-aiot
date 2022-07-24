@@ -6,6 +6,7 @@ import com.tzuyao.communityboardaiot.dto.FacilityRequest;
 import com.tzuyao.communityboardaiot.model.Facility;
 import com.tzuyao.communityboardaiot.service.FacilityService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +15,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
+@Tag(name = "公共設施租借 CRUD", description = "管理員可以新增查詢修改刪除關於公共設施的資料")
 @Validated
 @RestController
 public class FacilityController {
