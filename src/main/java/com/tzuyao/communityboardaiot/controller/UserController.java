@@ -88,7 +88,7 @@ public class UserController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = Admin.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = User.class))
                             )
                     }),
             @ApiResponse(responseCode = "404", description = "無此 住戶 ID，無法執行修改功能", content = {
@@ -97,7 +97,7 @@ public class UserController {
     })
     @PutMapping("/users/{userId}")
     public ResponseEntity<User> updateUser(@PathVariable Integer userId,
-                                           @RequestBody UserRequest userRequest) {
+                                           @RequestBody @Valid UserRequest userRequest) {
         User user = userService.getUserById(userId);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

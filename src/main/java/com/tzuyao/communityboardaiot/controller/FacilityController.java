@@ -83,7 +83,7 @@ public class FacilityController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = Admin.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = Facility.class))
                             )
                     }),
             @ApiResponse(responseCode = "404", description = "無此 設施 ID，無法執行修改功能", content = {
@@ -92,7 +92,7 @@ public class FacilityController {
     })
     @PutMapping("/facilities/{facilityId}")
     public ResponseEntity<Facility> updateFacility(@PathVariable Integer facilityId,
-                                                   @RequestBody FacilityRequest facilityRequest){
+                                                   @RequestBody @Valid FacilityRequest facilityRequest){
         Facility facility = facilityService.getFacilityById(facilityId);
         if (facility == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

@@ -62,7 +62,7 @@ public class BoardController {
     @Operation(summary = "修改公佈欄訊息", description = "透過 boardId 查詢訊息後修改訊息")
     @PutMapping("/board/{boardId}")
     public ResponseEntity<Board> updateBoard(@PathVariable Integer boardId,
-                                             @RequestBody BoardRequest boardRequest) {
+                                             @RequestBody @Valid BoardRequest boardRequest) {
         Board board = boardService.getBoardById(boardId);
         if (board == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
