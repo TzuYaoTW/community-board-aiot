@@ -64,7 +64,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Admin'
+                  $ref: '#/components/schemas/User'
     delete:
       tags:
       - 住戶 CRUD
@@ -85,6 +85,81 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/User'
+  /packages/{packageId}:
+    get:
+      tags:
+      - package-controller
+      summary: 取得包裹資料
+      description: 透過package_id取得包裹資料並回傳前端
+      operationId: getPackageById
+      parameters:
+      - name: packageId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Package'
+        "404":
+          description: 無此 包裹 ID，無法執行查詢功能
+    put:
+      tags:
+      - package-controller
+      summary: 修改包裹資料
+      description: 透過 package_id 修改包裹資料
+      operationId: updatePakcage
+      parameters:
+      - name: packageId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PackageRequest'
+        required: true
+      responses:
+        "404":
+          description: 無此 包裹 ID，無法執行修改功能
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Package'
+    delete:
+      tags:
+      - package-controller
+      summary: 刪除包裹
+      description: 刪除包裹資料
+      operationId: deletePackage
+      parameters:
+      - name: packageId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Package'
   /facilities/{facilityId}:
     get:
       tags:
@@ -135,7 +210,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Admin'
+                  $ref: '#/components/schemas/Facility'
     delete:
       tags:
       - 公共設施租借 CRUD
@@ -197,8 +272,6 @@ paths:
               $ref: '#/components/schemas/BoardRequest'
         required: true
       responses:
-        "404":
-          description: 無此 公佈欄訊息 ID，無法執行修改功能
         "200":
           description: OK
           content:
@@ -207,6 +280,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Board'
+        "404":
+          description: 無此 公佈欄訊息 ID，無法執行修改功能
     delete:
       tags:
       - 公佈欄 CRUD
@@ -243,8 +318,6 @@ paths:
           type: integer
           format: int32
       responses:
-        "404":
-          description: '無此管理員 ID '
         "200":
           description: OK
           content:
@@ -253,6 +326,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Admin'
+        "404":
+          description: '無此管理員 ID '
     put:
       tags:
       - 管理員 CRUD
@@ -274,12 +349,12 @@ paths:
               $ref: '#/components/schemas/AdminRequest'
         required: true
       responses:
+        "404":
+          description: 無此管理員 ID
         "200":
           description: OK
           content:
             application/json: {}
-        "404":
-          description: 無此管理員 ID
     delete:
       tags:
       - 管理員 CRUD
@@ -369,6 +444,33 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/User'
+  /packages:
+    post:
+      tags:
+      - package-controller
+      summary: 新增包裹
+      description: 新增包裹資料
+      operationId: createPackage
+      parameters:
+      - name: state
+        in: query
+        required: false
+        schema:
+          type: string
+          default: "0"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PackageRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Package'
   /facilities:
     get:
       tags:
@@ -537,38 +639,78 @@ components:
         userAddress:
           type: string
           description: 住戶住址
-    Admin:
+    User:
       type: object
       properties:
-        adminId:
+        userId:
           type: integer
-          description: 管理員 ID
+          description: 住戶 ID
           format: int32
-        adminAccount:
+        userFaceId:
           type: string
-          description: 管理員帳號
-        adminPassword:
+          description: 住戶 人臉辨識 ID
+        userName:
           type: string
-          description: 管理員密碼
-        adminName:
+          description: 住戶姓名
+        userTel:
           type: string
-          description: 管理員姓名
-        adminTel:
+          description: 住戶聯絡電話
+        userAddress:
           type: string
-          description: 管理員電話
-        adminEmail:
-          type: string
-          description: 管理員 email
-        adminAddress:
-          type: string
-          description: 管理員地址
+          description: 住戶地址
         createdDate:
           type: string
-          description: 管理員資料被創建時間
+          description: 住戶資料被建立時間
           format: date-time
         lastModifiedDate:
           type: string
-          description: 管理員資料最後修改時間
+          description: 住戶資料最後修改時間
+          format: date-time
+    PackageRequest:
+      required:
+      - packageName
+      - packageNumber
+      - userAddress
+      type: object
+      properties:
+        userAddress:
+          type: string
+          description: 收件人地址
+        packageName:
+          type: string
+          description: 收件人姓名
+        packageNumber:
+          type: string
+          description: 包裹編號
+        packageState:
+          type: string
+          description: 包裹狀態(0:未領取，1:已領取)
+    Package:
+      type: object
+      properties:
+        packageId:
+          type: integer
+          description: 包裹 ID
+          format: int32
+        userAddress:
+          type: string
+          description: 收件人地址
+        packageName:
+          type: string
+          description: 收件人姓名
+        packageNumber:
+          type: string
+          description: 包裹編號
+        packageState:
+          type: string
+          description: 包裹狀態(0:未領取，1:已領取)
+        createdDate:
+          type: string
+          description: 包裹數據建立時間
+          format: date-time
+        lastModifiedDate:
+          type: string
+          description: 包裹數據最後修改時間
           format: date-time
     FacilityRequest:
       required:
@@ -599,6 +741,41 @@ components:
         reservedTime:
           type: string
           description: 預定時間
+    Facility:
+      type: object
+      properties:
+        facilityId:
+          type: integer
+          description: 公共設施 ID
+          format: int32
+        userAddress:
+          type: string
+          description: 租借人地址
+        userName:
+          type: string
+          description: 租借人姓名
+        facilityCategory:
+          type: string
+          description: 租借人租的設施
+          enum:
+          - GYM
+          - MEETING_ROOM
+          - TABLE_TENNIS
+        reservedDay:
+          type: string
+          description: 預定的日期
+          format: date
+        reservedTime:
+          type: string
+          description: 預定的時間(ex:10:00-12:00)
+        createdDate:
+          type: string
+          description: 創建預定數據時間
+          format: date-time
+        lastModifiedDate:
+          type: string
+          description: 最後修改預定數據時間
+          format: date-time
     BoardRequest:
       required:
       - boardCategory
@@ -677,67 +854,38 @@ components:
         adminAddress:
           type: string
           description: 管理員地址
-    User:
+    Admin:
       type: object
       properties:
-        userId:
+        adminId:
           type: integer
-          description: 住戶 ID
+          description: 管理員 ID
           format: int32
-        userFaceId:
+        adminAccount:
           type: string
-          description: 住戶 人臉辨識 ID
-        userName:
+          description: 管理員帳號
+        adminPassword:
           type: string
-          description: 住戶姓名
-        userTel:
+          description: 管理員密碼
+        adminName:
           type: string
-          description: 住戶聯絡電話
-        userAddress:
+          description: 管理員姓名
+        adminTel:
           type: string
-          description: 住戶地址
+          description: 管理員電話
+        adminEmail:
+          type: string
+          description: 管理員 email
+        adminAddress:
+          type: string
+          description: 管理員地址
         createdDate:
           type: string
-          description: 住戶資料被建立時間
+          description: 管理員資料被創建時間
           format: date-time
         lastModifiedDate:
           type: string
-          description: 住戶資料最後修改時間
-          format: date-time
-    Facility:
-      type: object
-      properties:
-        facilityId:
-          type: integer
-          description: 公共設施 ID
-          format: int32
-        userAddress:
-          type: string
-          description: 租借人地址
-        userName:
-          type: string
-          description: 租借人姓名
-        facilityCategory:
-          type: string
-          description: 租借人租的設施
-          enum:
-          - GYM
-          - MEETING_ROOM
-          - TABLE_TENNIS
-        reservedDay:
-          type: string
-          description: 預定的日期
-          format: date
-        reservedTime:
-          type: string
-          description: 預定的時間(ex:10:00-12:00)
-        createdDate:
-          type: string
-          description: 創建預定數據時間
-          format: date-time
-        lastModifiedDate:
-          type: string
-          description: 最後修改預定數據時間
+          description: 管理員資料最後修改時間
           format: date-time
     PageUser:
       type: object
