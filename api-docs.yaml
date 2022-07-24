@@ -7,7 +7,12 @@ servers:
   description: Generated server url
 tags:
 - name: 住戶 CRUD
+  description: 管理員可以新增查詢修改刪除關於住戶的資料
 - name: 管理員 CRUD
+- name: 公共設施租借 CRUD
+  description: 管理員可以新增查詢修改刪除關於公共設施的資料
+- name: 公佈欄 CRUD
+  description: 管理員可以新增查詢修改刪除關於公佈欄的資料
 paths:
   /users/{userId}:
     get:
@@ -80,10 +85,81 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/User'
+  /facilities/{facilityId}:
+    get:
+      tags:
+      - 公共設施租借 CRUD
+      summary: 取得設施預定情況
+      description: 透過facility_id取得設施預定資料
+      operationId: getFacilityById
+      parameters:
+      - name: facilityId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Facility'
+    put:
+      tags:
+      - 公共設施租借 CRUD
+      summary: 修改預約
+      description: 透過facility_id取得設施預定資料後修改
+      operationId: updateFacility
+      parameters:
+      - name: facilityId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FacilityRequest'
+        required: true
+      responses:
+        "404":
+          description: 無此 設施 ID，無法執行修改功能
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Admin'
+    delete:
+      tags:
+      - 公共設施租借 CRUD
+      summary: 刪除預約
+      description: 透過facility_id刪除預約
+      operationId: deleteFacility
+      parameters:
+      - name: facilityId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Facility'
   /board/{boardId}:
     get:
       tags:
-      - board-controller
+      - 公佈欄 CRUD
       summary: 取得公佈欄資料
       description: 透過board_id取得公佈欄資料
       operationId: getBoardById
@@ -103,7 +179,7 @@ paths:
                 $ref: '#/components/schemas/Board'
     put:
       tags:
-      - board-controller
+      - 公佈欄 CRUD
       summary: 修改公佈欄訊息
       description: 透過 boardId 查詢訊息後修改訊息
       operationId: updateBoard
@@ -133,7 +209,7 @@ paths:
                   $ref: '#/components/schemas/Board'
     delete:
       tags:
-      - board-controller
+      - 公佈欄 CRUD
       summary: 刪除公佈欄訊息
       description: 透過 boardId 刪除已存在訊息
       operationId: deleteBoard
@@ -198,12 +274,12 @@ paths:
               $ref: '#/components/schemas/AdminRequest'
         required: true
       responses:
-        "404":
-          description: 無此管理員 ID
         "200":
           description: OK
           content:
             application/json: {}
+        "404":
+          description: 無此管理員 ID
     delete:
       tags:
       - 管理員 CRUD
@@ -293,10 +369,87 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/User'
+  /facilities:
+    get:
+      tags:
+      - 公共設施租借 CRUD
+      summary: 取得設施預定列表
+      description: 可模糊查詢姓名，可選擇場地，可選擇日期，可選擇時段，可以排除掉已過期資料(也可以全部都顯示)，依照前端請求orderBy指定項目排序(預設為預定日期時間)，依照前端請求sort指定排序順序(預設ASC由小到大排序)，
+      operationId: getFacilities_1
+      parameters:
+      - name: name
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: category
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - GYM
+          - MEETING_ROOM
+          - TABLE_TENNIS
+      - name: day
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: time
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: today
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: orderBy
+        in: query
+        required: false
+        schema:
+          type: string
+          default: reserved_day
+      - name: sort
+        in: query
+        required: false
+        schema:
+          type: string
+          default: ASC
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Facility'
+    post:
+      tags:
+      - 公共設施租借 CRUD
+      summary: 新增預約設施
+      description: 新增預約設施
+      operationId: getFacilities
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FacilityRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Facility'
   /board:
     get:
       tags:
-      - board-controller
+      - 公佈欄 CRUD
       summary: 取得所有公佈欄資訊
       description: 取得所有公佈欄資訊
       operationId: getBoards
@@ -311,7 +464,7 @@ paths:
                   $ref: '#/components/schemas/Board'
     post:
       tags:
-      - board-controller
+      - 公佈欄 CRUD
       summary: 新增公佈欄訊息
       description: 新增公佈欄訊息
       operationId: createBoard
@@ -417,6 +570,35 @@ components:
           type: string
           description: 管理員資料最後修改時間
           format: date-time
+    FacilityRequest:
+      required:
+      - facilityCategory
+      - reservedDay
+      - reservedTime
+      - userAddress
+      - userName
+      type: object
+      properties:
+        userAddress:
+          type: string
+          description: 預定者地址
+        userName:
+          type: string
+          description: 預定者姓名
+        facilityCategory:
+          type: string
+          description: 場地
+          enum:
+          - GYM
+          - MEETING_ROOM
+          - TABLE_TENNIS
+        reservedDay:
+          type: string
+          description: 預定日期
+          format: date
+        reservedTime:
+          type: string
+          description: 預定時間
     BoardRequest:
       required:
       - boardCategory
@@ -521,6 +703,41 @@ components:
         lastModifiedDate:
           type: string
           description: 住戶資料最後修改時間
+          format: date-time
+    Facility:
+      type: object
+      properties:
+        facilityId:
+          type: integer
+          description: 公共設施 ID
+          format: int32
+        userAddress:
+          type: string
+          description: 租借人地址
+        userName:
+          type: string
+          description: 租借人姓名
+        facilityCategory:
+          type: string
+          description: 租借人租的設施
+          enum:
+          - GYM
+          - MEETING_ROOM
+          - TABLE_TENNIS
+        reservedDay:
+          type: string
+          description: 預定的日期
+          format: date
+        reservedTime:
+          type: string
+          description: 預定的時間(ex:10:00-12:00)
+        createdDate:
+          type: string
+          description: 創建預定數據時間
+          format: date-time
+        lastModifiedDate:
+          type: string
+          description: 最後修改預定數據時間
           format: date-time
     PageUser:
       type: object
