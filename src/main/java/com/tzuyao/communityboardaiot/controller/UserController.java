@@ -91,7 +91,7 @@ public class UserController {
                                     array = @ArraySchema(schema = @Schema(implementation = Admin.class))
                             )
                     }),
-            @ApiResponse(responseCode = "404", description = "無此 住戶 ID", content = {
+            @ApiResponse(responseCode = "404", description = "無此 住戶 ID，無法執行修改功能", content = {
                     @Content()
             })
     })

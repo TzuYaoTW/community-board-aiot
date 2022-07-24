@@ -51,7 +51,7 @@ paths:
         required: true
       responses:
         "404":
-          description: 無此 住戶 ID
+          description: 無此 住戶 ID，無法執行修改功能
         "200":
           description: OK
           content:
@@ -80,6 +80,77 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/User'
+  /board/{boardId}:
+    get:
+      tags:
+      - board-controller
+      summary: 取得公佈欄資料
+      description: 透過board_id取得公佈欄資料
+      operationId: getBoardById
+      parameters:
+      - name: boardId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Board'
+    put:
+      tags:
+      - board-controller
+      summary: 修改公佈欄訊息
+      description: 透過 boardId 查詢訊息後修改訊息
+      operationId: updateBoard
+      parameters:
+      - name: boardId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BoardRequest'
+        required: true
+      responses:
+        "404":
+          description: 無此 公佈欄訊息 ID，無法執行修改功能
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Board'
+    delete:
+      tags:
+      - board-controller
+      summary: 刪除公佈欄訊息
+      description: 透過 boardId 刪除已存在訊息
+      operationId: deleteBoard
+      parameters:
+      - name: boardId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Board'
   /admins/{adminId}:
     get:
       tags:
@@ -110,7 +181,7 @@ paths:
       tags:
       - 管理員 CRUD
       summary: 修改管理員資料
-      description: 透過adminId修改管理員資料
+      description: 透過adminId先查詢是否存在，如存在該筆數據，執行修改；最後再使用adminId重新查詢該筆數據後回傳
       operationId: updateAdmin
       parameters:
       - name: adminId
@@ -128,7 +199,7 @@ paths:
         required: true
       responses:
         "404":
-          description: '無此管理員 ID '
+          description: 無此管理員 ID
         "200":
           description: OK
           content:
@@ -158,18 +229,51 @@ paths:
     get:
       tags:
       - 住戶 CRUD
-      summary: 取得所有住戶資料
-      description: 取得所有住戶資料
+      summary: 住戶資料列表(模糊查詢+分頁+排序)
+      description: 可模糊查詢姓名，依照前端請求orderBy指定項目排序(預設為創建資料時間)，依照前端請求sort指定排序順序(DESC由大到小排序)，依照前端請求limit限制每頁筆數(預設5)，依照前端請求offset設定跳過筆數(預設0，代表第一頁)。回傳總數count讓前端計算分頁。
       operationId: getUsers
+      parameters:
+      - name: search
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: orderBy
+        in: query
+        required: false
+        schema:
+          type: string
+          default: created_date
+      - name: sort
+        in: query
+        required: false
+        schema:
+          type: string
+          default: desc
+      - name: limit
+        in: query
+        required: false
+        schema:
+          maximum: 1000
+          minimum: 0
+          type: integer
+          format: int32
+          default: 5
+      - name: offset
+        in: query
+        required: false
+        schema:
+          minimum: 0
+          type: integer
+          format: int32
+          default: 0
       responses:
         "200":
           description: OK
           content:
             '*/*':
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/PageUser'
     post:
       tags:
       - 住戶 CRUD
@@ -189,6 +293,41 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/User'
+  /board:
+    get:
+      tags:
+      - board-controller
+      summary: 取得所有公佈欄資訊
+      description: 取得所有公佈欄資訊
+      operationId: getBoards
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Board'
+    post:
+      tags:
+      - board-controller
+      summary: 新增公佈欄訊息
+      description: 新增公佈欄訊息
+      operationId: createBoard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BoardRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Board'
   /admins:
     get:
       tags:
@@ -278,6 +417,56 @@ components:
           type: string
           description: 管理員資料最後修改時間
           format: date-time
+    BoardRequest:
+      required:
+      - boardCategory
+      - boardDescription
+      - boardTitle
+      type: object
+      properties:
+        boardCategory:
+          type: string
+          description: 訊息分類
+          enum:
+          - IMPORTANT
+          - ADVERTISE
+          - ACTIVITY
+          - ANNOUNCEMENT
+        boardTitle:
+          type: string
+          description: 公告title
+        boardDescription:
+          type: string
+          description: 公告內容
+    Board:
+      type: object
+      properties:
+        boardId:
+          type: integer
+          description: 公佈欄 ID
+          format: int32
+        boardCategory:
+          type: string
+          description: 公佈欄 分類
+          enum:
+          - IMPORTANT
+          - ADVERTISE
+          - ACTIVITY
+          - ANNOUNCEMENT
+        boardTitle:
+          type: string
+          description: '公佈欄 標題 '
+        boardDescription:
+          type: string
+          description: 公佈欄 內容文字
+        createdDate:
+          type: string
+          description: 公佈欄 被創建時間
+          format: date-time
+        lastModifiedDate:
+          type: string
+          description: 公佈欄 最後被修改時間
+          format: date-time
     AdminRequest:
       required:
       - adminAccount
@@ -333,3 +522,23 @@ components:
           type: string
           description: 住戶資料最後修改時間
           format: date-time
+    PageUser:
+      type: object
+      properties:
+        limit:
+          type: integer
+          description: 限制資料庫回傳筆數(每個分頁要顯示幾筆數據)
+          format: int32
+        offset:
+          type: integer
+          description: 跳過幾筆數據(例如limit預設=5，第一頁offset=0，第二頁offset=5....)
+          format: int32
+        total:
+          type: integer
+          description: 查詢結果筆數，計算分頁數量用
+          format: int32
+        results:
+          type: array
+          description: 住戶資料集
+          items:
+            $ref: '#/components/schemas/User'

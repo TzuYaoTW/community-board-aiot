@@ -82,7 +82,7 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @Operation(summary = "修改管理員資料", description = "透過adminId修改管理員資料")
+    @Operation(summary = "修改管理員資料", description = "透過adminId先查詢是否存在，如存在該筆數據，執行修改；最後再使用adminId重新查詢該筆數據後回傳")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = {
@@ -90,7 +90,7 @@ public class AdminController {
                                     mediaType = "application/json"
                             )
                     }),
-            @ApiResponse(responseCode = "404", description = "無此管理員 ID ", content = {
+            @ApiResponse(responseCode = "404", description = "無此管理員 ID", content = {
                     @Content()
             })
     })

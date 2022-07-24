@@ -109,7 +109,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public void updateUser(Integer userId, UserRequest userRequest) {
         String sql = "UPDATE user SET user_face_id = :userFaceId, user_name = :userName, " +
-                "user_tel = :userTel, user_address = :userAddress, " +
+                "user_t el = :userTel, user_address = :userAddress, " +
                 "last_modified_date = :lastModifiedDate WHERE user_id = :userId;";
 
         Map<String, Object> map = new HashMap<>();
