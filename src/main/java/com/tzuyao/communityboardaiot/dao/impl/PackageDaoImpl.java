@@ -1,6 +1,7 @@
 package com.tzuyao.communityboardaiot.dao.impl;
 
 import com.tzuyao.communityboardaiot.dao.PackageDao;
+import com.tzuyao.communityboardaiot.dto.PackageQueryParams;
 import com.tzuyao.communityboardaiot.dto.PackageRequest;
 import com.tzuyao.communityboardaiot.model.Package;
 import com.tzuyao.communityboardaiot.rowmapper.PackageRowMapper;
@@ -21,6 +22,40 @@ public class PackageDaoImpl implements PackageDao {
 
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    @Override
+    public List<Package> getPackages(PackageQueryParams packageQueryParams) {
+        String sql = "SELECT package_id, user_address, package_name, package_number, " +
+                "package_state, created_date, last_modified_date FROM package WHERE 1=1";
+
+        Map<String, Object> map = new HashMap<>();
+
+        sql = addFilteringSql(sql, map, packageQueryParams);
+
+        sql = sql + " ORDER BY " + packageQueryParams.getOrderBy() + " " + packageQueryParams.getSort();
+
+        sql = sql + " LIMIT :limit OFFSET :offset";
+        map.put("limit", packageQueryParams.getLimit());
+        map.put("offset", packageQueryParams.getOffset());
+
+        List<Package> packageList = namedParameterJdbcTemplate.query(sql, map, new PackageRowMapper());
+
+        return packageList;
+    }
+
+    @Override
+    public Integer countPackage(PackageQueryParams packageQueryParams) {
+
+        String sql = "SELECT COUNT(*) FROM package WHERE 1=1";
+
+        Map<String, Object> map = new HashMap<>();
+
+        sql = addFilteringSql(sql, map, packageQueryParams);
+
+        Integer total = namedParameterJdbcTemplate.queryForObject(sql, map, Integer.class);
+
+        return total;
+    }
 
     @Override
     public Package getPackageById(Integer packageId) {
@@ -72,7 +107,7 @@ public class PackageDaoImpl implements PackageDao {
     }
 
     @Override
-    public void updatePackage(PackageRequest packageRequest, Integer packageId) {
+    public void updatePackage(PackageRequest packageRequest, Integer packageId, String state) {
         String sql = "UPDATE `package` SET user_address = :userAddress, package_name = :packageName, " +
                 "package_number = :packageNumber, package_state = :packageState, " +
                 "last_modified_date = :lastModifiedDate WHERE package_id = :packageId;";
@@ -80,10 +115,23 @@ public class PackageDaoImpl implements PackageDao {
         map.put("userAddress", packageRequest.getUserAddress());
         map.put("packageName", packageRequest.getPackageName());
         map.put("packageNumber", packageRequest.getPackageNumber());
-        map.put("packageState", "0");
+        map.put("packageState", state);
         map.put("lastModifiedDate", new Date());
         map.put("packageId", packageId);
 
         namedParameterJdbcTemplate.update(sql, map);
+    }
+
+    private String addFilteringSql(String sql, Map<String, Object> map, PackageQueryParams packageQueryParams) {
+        if (packageQueryParams.getSearch() != null){
+            sql = sql + " AND user_address LIKE :search";
+            map.put("search", "%" + packageQueryParams.getSearch() + "%");
+            System.out.println(packageQueryParams.getSearch());
+        }
+
+        sql = sql + " AND package_state = :state";
+        map.put("state", packageQueryParams.getState());
+
+        return sql;
     }
 }

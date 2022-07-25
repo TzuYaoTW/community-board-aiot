@@ -20,8 +20,4 @@ public class PackageRequest {
     @NotNull
     @Schema(description = "包裹編號")
     String packageNumber;
-
-    @Schema(description = "包裹狀態(0:未領取，1:已領取)")
-    String packageState;
-
 }

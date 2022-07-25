@@ -1,17 +1,31 @@
 package com.tzuyao.communityboardaiot.service.impl;
 
 import com.tzuyao.communityboardaiot.dao.PackageDao;
+import com.tzuyao.communityboardaiot.dto.PackageQueryParams;
 import com.tzuyao.communityboardaiot.dto.PackageRequest;
 import com.tzuyao.communityboardaiot.model.Package;
 import com.tzuyao.communityboardaiot.service.PackageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class PackageServiceImpl implements PackageService {
 
     @Autowired
     private PackageDao packageDao;
+
+
+    @Override
+    public List<Package> getPackages(PackageQueryParams packageQueryParams) {
+        return packageDao.getPackages(packageQueryParams);
+    }
+
+    @Override
+    public Integer countPackage(PackageQueryParams packageQueryParams) {
+        return packageDao.countPackage(packageQueryParams);
+    }
 
     @Override
     public Package getPackageById(Integer packageId) {
@@ -29,7 +43,7 @@ public class PackageServiceImpl implements PackageService {
     }
 
     @Override
-    public void updatePackage(PackageRequest packageRequest, Integer packageId) {
-        packageDao.updatePackage(packageRequest, packageId);
+    public void updatePackage(PackageRequest packageRequest, Integer packageId, String state) {
+        packageDao.updatePackage(packageRequest, packageId, state);
     }
 }
