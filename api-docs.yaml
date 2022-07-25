@@ -6,8 +6,12 @@ servers:
 - url: http://localhost:8080
   description: Generated server url
 tags:
+- name: 人臉辨識
+  description: 接收RaspberryPi人臉辨識結果，將其結果取得住戶相關資料
 - name: 住戶 CRUD
   description: 管理員可以新增查詢修改刪除關於住戶的資料
+- name: 住戶包裹 CRUD
+  description: 管理員可以新增查詢修改刪除關於包裹的資料
 - name: 管理員 CRUD
 - name: 公共設施租借 CRUD
   description: 管理員可以新增查詢修改刪除關於公共設施的資料
@@ -55,8 +59,6 @@ paths:
               $ref: '#/components/schemas/UserRequest'
         required: true
       responses:
-        "404":
-          description: 無此 住戶 ID，無法執行修改功能
         "200":
           description: OK
           content:
@@ -65,6 +67,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
+        "404":
+          description: 無此 住戶 ID，無法執行修改功能
     delete:
       tags:
       - 住戶 CRUD
@@ -88,7 +92,7 @@ paths:
   /packages/{packageId}:
     get:
       tags:
-      - package-controller
+      - 住戶包裹 CRUD
       summary: 取得包裹資料
       description: 透過package_id取得包裹資料並回傳前端
       operationId: getPackageById
@@ -112,10 +116,10 @@ paths:
           description: 無此 包裹 ID，無法執行查詢功能
     put:
       tags:
-      - package-controller
-      summary: 修改包裹資料
-      description: 透過 package_id 修改包裹資料
-      operationId: updatePakcage
+      - 住戶包裹 CRUD
+      summary: 修改包裹資料(修改包裹為已領取狀態)
+      description: 透過 package_id 修改包裹資料，透過RequestParam String state調整包裹狀態(即領取包裹)
+      operationId: updatePackage
       parameters:
       - name: packageId
         in: path
@@ -123,6 +127,12 @@ paths:
         schema:
           type: integer
           format: int32
+      - name: state
+        in: query
+        required: false
+        schema:
+          type: string
+          default: "0"
       requestBody:
         content:
           application/json:
@@ -142,7 +152,7 @@ paths:
                   $ref: '#/components/schemas/Package'
     delete:
       tags:
-      - package-controller
+      - 住戶包裹 CRUD
       summary: 刪除包裹
       description: 刪除包裹資料
       operationId: deletePackage
@@ -201,8 +211,6 @@ paths:
               $ref: '#/components/schemas/FacilityRequest'
         required: true
       responses:
-        "404":
-          description: 無此 設施 ID，無法執行修改功能
         "200":
           description: OK
           content:
@@ -211,6 +219,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Facility'
+        "404":
+          description: 無此 設施 ID，無法執行修改功能
     delete:
       tags:
       - 公共設施租借 CRUD
@@ -349,12 +359,12 @@ paths:
               $ref: '#/components/schemas/AdminRequest'
         required: true
       responses:
-        "404":
-          description: 無此管理員 ID
         "200":
           description: OK
           content:
             application/json: {}
+        "404":
+          description: 無此管理員 ID
     delete:
       tags:
       - 管理員 CRUD
@@ -445,9 +455,63 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
   /packages:
+    get:
+      tags:
+      - 住戶包裹 CRUD
+      summary: 查詢包裹列表(模糊查詢+區隔領取與未領取+分頁+排序)
+      description: 透過模糊查詢地址取得包裹資料列表，可選擇查詢領取或未領取(預設未領取)，依照前端請求orderBy指定項目排序(預設為預定日期時間)，依照前端請求sort指定排序順序(預設DESC由新到舊排序)，依照前端請求limit限制每頁筆數(預設5)，依照前端請求offset設定跳過筆數(預設0，代表第一頁)。回傳總數count讓前端計算分頁。
+      operationId: getPackages
+      parameters:
+      - name: search
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: state
+        in: query
+        required: false
+        schema:
+          type: string
+          default: "0"
+      - name: orderBy
+        in: query
+        required: false
+        schema:
+          type: string
+          default: last_modified_date
+      - name: sort
+        in: query
+        required: false
+        schema:
+          type: string
+          default: DESC
+      - name: limit
+        in: query
+        required: false
+        schema:
+          maximum: 20
+          minimum: 0
+          type: integer
+          format: int32
+          default: 5
+      - name: offset
+        in: query
+        required: false
+        schema:
+          minimum: 0
+          type: integer
+          format: int32
+          default: 0
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PagePackage'
     post:
       tags:
-      - package-controller
+      - 住戶包裹 CRUD
       summary: 新增包裹
       description: 新增包裹資料
       operationId: createPackage
@@ -618,6 +682,46 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Admin'
+  /chrome:
+    get:
+      tags:
+      - 人臉辨識
+      summary: 接收前端人臉辨識token，並且取得對應的住戶資料
+      description: 比較我傳出去的token和前端傳來的token(這個token是Raspberry Pi傳給前端的)是一致的，用意是不希望有他人透過非人臉辨識途徑來拿到資料庫數據
+      operationId: getUserByFaceId
+      parameters:
+      - name: token
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /Demo/pi:
+    get:
+      tags:
+      - 人臉辨識
+      summary: 接收Raspberry Pi的人臉辨識答案
+      description: 將人臉辨識答案轉變為token，並且存至Java Bean(方便後續比對)，並且回傳token給Raspberry Pi
+      operationId: setFacialRecognition
+      parameters:
+      - name: user
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
 components:
   schemas:
     UserRequest:
@@ -682,9 +786,6 @@ components:
         packageNumber:
           type: string
           description: 包裹編號
-        packageState:
-          type: string
-          description: 包裹狀態(0:未領取，1:已領取)
     Package:
       type: object
       properties:
@@ -907,3 +1008,23 @@ components:
           description: 住戶資料集
           items:
             $ref: '#/components/schemas/User'
+    PagePackage:
+      type: object
+      properties:
+        limit:
+          type: integer
+          description: 限制資料庫回傳筆數(每個分頁要顯示幾筆數據)
+          format: int32
+        offset:
+          type: integer
+          description: 跳過幾筆數據(例如limit預設=5，第一頁offset=0，第二頁offset=5....)
+          format: int32
+        total:
+          type: integer
+          description: 查詢結果筆數，計算分頁數量用
+          format: int32
+        results:
+          type: array
+          description: 住戶資料集
+          items:
+            $ref: '#/components/schemas/Package'
