@@ -1,6 +1,6 @@
 ## Community Board By Spring Boot
 
-> 原先的專案後端使用的是Java Servlet+JSP
+> 原先的資策會AIOT期末專案後端使用的是Java Servlet+JSP
 >
 > 此repository將之改寫為Spring Boot架構
 >
@@ -42,8 +42,13 @@
 ----------
 - 包裹 CRUD
 	1. 新增包裹
-	2. 查詢包裹(模糊查詢住址，可排除已領取包裹)
+	2. 查詢包裹(模糊查詢住址，可排除已領取包裹、分頁配置(limit、offset、count)、排序)
 	3. 修改包裹(可修改包裹狀態(轉變為已領取))
 	4. 刪除包裹
+
+----------
+- 人臉辨識
+	1. 接收人臉辨識結果(RaspberryPi)，並且回傳token
+	2. 接收前端token，比對RaspberryPi的token是否一致，並且取得相對應住戶資料
 
 ### 持續新增中
