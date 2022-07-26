@@ -103,4 +103,16 @@ public class RfidDaoImpl implements RfidDao {
 
         return rfidList;
     }
+
+    @Override
+    public String getAddressByRfidCode(String rfidCode) {
+        String sql = "SELECT rfid_id, user_address, rfid_name, rfid_code, created_date, " +
+                "last_modified_date FROM rfid WHERE rfid_code = :rfidCode";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("rfidCode", rfidCode);
+        List<Rfid> rfidList = namedParameterJdbcTemplate.query(sql, new MapSqlParameterSource(map), new RfidRowMapper());
+        String userAddress = rfidList.get(0).getUserAddress();
+        return userAddress;
+    }
 }

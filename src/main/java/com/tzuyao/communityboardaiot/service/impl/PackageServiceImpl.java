@@ -1,6 +1,7 @@
 package com.tzuyao.communityboardaiot.service.impl;
 
 import com.tzuyao.communityboardaiot.dao.PackageDao;
+import com.tzuyao.communityboardaiot.dao.RfidDao;
 import com.tzuyao.communityboardaiot.dto.PackageQueryParams;
 import com.tzuyao.communityboardaiot.dto.PackageRequest;
 import com.tzuyao.communityboardaiot.model.Package;
@@ -16,9 +17,19 @@ public class PackageServiceImpl implements PackageService {
     @Autowired
     private PackageDao packageDao;
 
+    @Autowired
+    private RfidDao rfidDao;
+
 
     @Override
     public List<Package> getPackages(PackageQueryParams packageQueryParams) {
+        //如果你有給rfid的話，透過rfid_code抓到地址並且覆寫packageQueryParams的地址
+        if (packageQueryParams.getSearchByRfid() != null) {
+            String userAddress = rfidDao.getAddressByRfidCode(packageQueryParams.getSearchByRfid());
+            packageQueryParams.setSearchByAddress(userAddress);
+            packageQueryParams.setSearchByRfid(null);
+            System.out.println(packageQueryParams.getSearchByRfid());
+        }
         return packageDao.getPackages(packageQueryParams);
     }
 

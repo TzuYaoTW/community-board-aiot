@@ -31,7 +31,7 @@ public class PackageController {
     @Autowired
     private PackageService packageService;
 
-    @Operation(summary = "查詢包裹列表(模糊查詢+區隔領取與未領取+分頁+排序)", description = "透過模糊查詢地址取得包裹資料列表，" +
+    @Operation(summary = "查詢包裹列表(模糊查詢地址+區隔領取與未領取+分頁+排序)", description = "透過模糊查詢地址取得包裹資料列表，" +
             "可選擇查詢領取或未領取(預設未領取)，" +
             "依照前端請求orderBy指定項目排序(預設為預定日期時間)，" +
             "依照前端請求sort指定排序順序(預設DESC由新到舊排序)，" +
@@ -39,14 +39,16 @@ public class PackageController {
             "依照前端請求offset設定跳過筆數(預設0，代表第一頁)。" +
             "回傳總數count讓前端計算分頁。")
     @GetMapping("/packages")
-    public ResponseEntity<Page<Package>> getPackages(@RequestParam(required = false) String search,
+    public ResponseEntity<Page<Package>> getPackages(@RequestParam(required = false) String address,
+                                                     @RequestParam(required = false) String rfid,
                                                      @RequestParam(defaultValue = "0") String state,
                                                      @RequestParam(defaultValue = "last_modified_date") String orderBy,
                                                      @RequestParam(defaultValue = "DESC") String sort,
                                                      @RequestParam(defaultValue = "5") @Max(20) @Min(0) Integer limit,
                                                      @RequestParam(defaultValue = "0") @Min(0) Integer offset) {
         PackageQueryParams packageQueryParams = new PackageQueryParams();
-        packageQueryParams.setSearchByAddress(search);
+        packageQueryParams.setSearchByAddress(address);
+        packageQueryParams.setSearchByRfid(rfid);
         packageQueryParams.setState(state);
         packageQueryParams.setOrderBy(orderBy);
         packageQueryParams.setSort(sort);

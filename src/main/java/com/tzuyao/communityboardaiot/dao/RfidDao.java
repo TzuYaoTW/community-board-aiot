@@ -16,4 +16,6 @@ public interface RfidDao {
     void updateRfid(RfidRequest rfidRequest, Integer rfidId);
 
     List<Rfid> getRfidList(RfidQueryParams rfidQueryParams);
+
+    String getAddressByRfidCode(String rfidCode);
 }
