@@ -1,14 +1,24 @@
-## Community Board By Spring Boot
+# Community Board By Spring Boot
 
 > 原先的資策會AIOT期末專案後端使用的是Java Servlet+JSP
 >
 > 此repository將之改寫為Spring Boot架構
 >
-> 附上OpenAPI文件(ymal檔)，可複製至 [https://editor.swagger.io/](https://editor.swagger.io/ "Swagger Editor 線上版")  觀看
+> 附上OpenAPI文件(ymal檔，api-docs.yaml)，可複製至 [https://editor.swagger.io/](https://editor.swagger.io/ "Swagger Editor 線上版")  觀看
 
-### 使用Spring boot建構專案後端API
+# 開發環境
 
-### API ###
+- 開發工具：intelliJ IDEA Ultimate：2020.3.3
+- Java 11 (AdoptOpenJDK)
+- MySql：8.0.17
+- Chrome 擴充功能 Talend API Tester
+### dependency 
+- Spring Boot：2.3.7.RELEASE
+- Swagger2 & ui 2.9.2
+- lombok：1.18.20
+
+# 使用Spring boot建構專案後端API
+### 簡述專案包含的API
 
 - 管理者(社區保全或警衛) CRUD
 
@@ -42,13 +52,22 @@
 ----------
 - 包裹 CRUD
 	1. 新增包裹
-	2. 查詢包裹(模糊查詢住址，可排除已領取包裹、分頁配置(limit、offset、count)、排序)
+	2. 查詢包裹(可透過RFID領取包裹、模糊查詢住址找包裹，可排除已領取包裹、分頁配置(limit、offset、count)、排序)
 	3. 修改包裹(可修改包裹狀態(轉變為已領取))
 	4. 刪除包裹
+
+----------
+- RFID CRUD
+	1. 新增RFID資料
+	2. 查詢RFID資料
+	3. 修改RFID資料
+	4. 刪除RFID資料
 
 ----------
 - 人臉辨識
 	1. 接收人臉辨識結果(RaspberryPi)，並且回傳token
 	2. 接收前端token，比對RaspberryPi的token是否一致，並且取得相對應住戶資料
+
+
 
 ### 持續新增中
