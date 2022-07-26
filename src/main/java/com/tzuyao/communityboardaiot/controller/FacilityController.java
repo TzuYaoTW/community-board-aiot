@@ -53,13 +53,20 @@ public class FacilityController {
             })
     })
     @GetMapping("/facilities")
-    public ResponseEntity<List<Facility>> getFacilities(@RequestParam(required = false) @Parameter(description = "租借者") String name,
-                                                        @RequestParam(required = false) @Parameter(description = "場地") FacilityCategory category,
-                                                        @RequestParam(required = false) @Parameter(description = "租借日期") String day,
-                                                        @RequestParam(required = false) @Parameter(description = "租借時間") String time,
-                                                        @RequestParam(required = false) @Parameter(description = "可設定排除時間點") String today,
-                                                        @RequestParam(defaultValue = "reserved_day") @Parameter(description = "根據所選欄位排序") String orderBy,
-                                                        @RequestParam(defaultValue = "ASC") @Parameter(description = "排序方式") String sort){
+    public ResponseEntity<List<Facility>> getFacilities(@RequestParam(required = false)
+                                                            @Parameter(description = "租借者") String name,
+                                                        @RequestParam(required = false)
+                                                        @Parameter(description = "場地") FacilityCategory category,
+                                                        @RequestParam(required = false)
+                                                            @Parameter(description = "租借日期") String day,
+                                                        @RequestParam(required = false)
+                                                            @Parameter(description = "租借時間") String time,
+                                                        @RequestParam(required = false)
+                                                            @Parameter(description = "可設定排除時間點") String today,
+                                                        @RequestParam(defaultValue = "reserved_day")
+                                                            @Parameter(description = "根據所選欄位排序") String orderBy,
+                                                        @RequestParam(defaultValue = "ASC")
+                                                            @Parameter(description = "排序方式") String sort){
         FacilityQueryParams facilityQueryParams = new FacilityQueryParams();
         facilityQueryParams.setUserName(name);
         facilityQueryParams.setFacilityCategory(category);
@@ -77,6 +84,15 @@ public class FacilityController {
     }
 
     @Operation(summary = "取得設施預定情況", description = "透過facility_id取得設施預定資料")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = Facility.class))
+                            )
+                    })
+    })
     @GetMapping("/facilities/{facilityId}")
     public ResponseEntity<Facility> getFacilityById(@PathVariable Integer facilityId) {
         Facility facility = facilityService.getFacilityById(facilityId);
@@ -84,6 +100,15 @@ public class FacilityController {
     }
 
     @Operation(summary = "新增預約設施", description = "新增預約設施")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = Facility.class))
+                            )
+                    })
+    })
     @PostMapping("/facilities")
     public ResponseEntity<Facility> getFacilities(@RequestBody @Valid FacilityRequest facilityRequest) {
         Integer facilityId = facilityService.createFacility(facilityRequest);
@@ -93,7 +118,7 @@ public class FacilityController {
 
     @Operation(summary = "修改預約", description = "透過facility_id取得設施預定資料後修改")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK",
+            @ApiResponse(responseCode = "200", description = "成功",
                     content = {
                             @Content(
                                     mediaType = "application/json",
@@ -118,6 +143,12 @@ public class FacilityController {
     }
 
     @Operation(summary = "刪除預約", description = "透過facility_id刪除預約")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = {
+                            @Content()
+                    })
+    })
     @DeleteMapping("/facilities/{facilityId}")
     public ResponseEntity<Facility> deleteFacility(@PathVariable Integer facilityId) {
         facilityService.deleteFacility(facilityId);

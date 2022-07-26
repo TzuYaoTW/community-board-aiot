@@ -31,12 +31,21 @@ public class AdminController {
 
     // 查詢管理員列表
     @Operation(summary = "取得所有管理員", description = "取得所有管理員資料")
+    @ApiResponse(responseCode = "200", description = "成功",
+            content ={
+                    @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = Admin.class))
+                    )
+            })
     @GetMapping("/admins")
     public ResponseEntity<List<Admin>> getAdmins() {
         List<Admin> adminList = adminService.getAdmins();
         return ResponseEntity.status(HttpStatus.OK).body(adminList);
     }
 
+
+    // 查詢管理員資料(透過adminId)
     @Operation(summary = "透過adminId查詢管理員資料", description = "透過adminId查詢管理員資料")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "成功",
@@ -61,8 +70,7 @@ public class AdminController {
         }
     }
 
-
-
+    // 新增管理員資料
     @Operation(summary = "新增管理員資料", description = "新增管理員資料")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "成功",
@@ -83,6 +91,7 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(admin);
     }
 
+    // 刪除管理員資料
     @Operation(summary = "刪除管理員資料", description = "透過adminId刪除管理員資料")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "成功", content = {
@@ -97,6 +106,7 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    // 修改管理員資料(透過adminId)
     @Operation(summary = "修改管理員資料", description = "透過adminId先查詢是否存在，如存在該筆數據，執行修改；最後再使用adminId重新查詢該筆數據後回傳")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "成功", content = {

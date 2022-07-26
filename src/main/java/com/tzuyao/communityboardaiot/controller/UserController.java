@@ -2,7 +2,6 @@ package com.tzuyao.communityboardaiot.controller;
 
 import com.tzuyao.communityboardaiot.dto.UserQueryParams;
 import com.tzuyao.communityboardaiot.dto.UserRequest;
-import com.tzuyao.communityboardaiot.model.Admin;
 import com.tzuyao.communityboardaiot.model.User;
 import com.tzuyao.communityboardaiot.service.UserService;
 import com.tzuyao.communityboardaiot.util.Page;
@@ -41,14 +40,25 @@ public class UserController {
             "依照前端請求offset設定跳過筆數(預設0，代表第一頁)。" +
             "回傳總數count讓前端計算分頁。")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "成功")
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = User.class))
+                            )
+                    })
     })
     @GetMapping("/users")
-    public ResponseEntity<Page<User>> getUsers(@RequestParam(required = false) @Parameter(description = "關鍵字搜尋(住戶姓名)") String search,
-                                               @RequestParam(defaultValue = "created_date") @Parameter(description = "根據所選欄位排序") String orderBy,
-                                               @RequestParam(defaultValue = "desc") @Parameter(description = "排序方式") String sort,
-                                               @RequestParam(defaultValue = "5") @Max(1000) @Min(0) @Parameter(description = "限制資料筆數") Integer limit,
-                                               @RequestParam(defaultValue = "0") @Min(0) @Parameter(description = "跳過資料筆數") Integer offset
+    public ResponseEntity<Page<User>> getUsers(@RequestParam(required = false)
+                                                   @Parameter(description = "關鍵字搜尋(住戶姓名)") String search,
+                                               @RequestParam(defaultValue = "created_date")
+                                                   @Parameter(description = "根據所選欄位排序") String orderBy,
+                                               @RequestParam(defaultValue = "desc")
+                                                   @Parameter(description = "排序方式") String sort,
+                                               @RequestParam(defaultValue = "5") @Max(1000) @Min(0)
+                                                   @Parameter(description = "限制資料筆數") Integer limit,
+                                               @RequestParam(defaultValue = "0") @Min(0)
+                                                   @Parameter(description = "跳過資料筆數") Integer offset
                                                ) {
         UserQueryParams userQueryParams = new UserQueryParams();
         userQueryParams.setSearch(search);
@@ -72,7 +82,13 @@ public class UserController {
 
     @Operation(summary = "取得住戶資料", description = "透過userId取得住戶資料並回傳前端")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "成功")
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = User.class))
+                            )
+                    })
     })
     @GetMapping("/users/{userId}")
     public ResponseEntity<User> getUserById(@PathVariable Integer userId) {
@@ -84,10 +100,17 @@ public class UserController {
 
     @Operation(summary = "新增住戶資料", description = "新增住戶資料，完成後回傳新增的住戶資訊")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "成功")
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = User.class))
+                            )
+                    })
     })
     @PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody @Valid UserRequest userRequest) {
+    public ResponseEntity<User> createUser(@RequestBody @Valid @io.swagger.v3.oas.annotations.parameters.
+            RequestBody(description = "請求參數列表") UserRequest userRequest) {
         Integer userId = userService.createUser(userRequest);
         User user = userService.getUserById(userId);
 
@@ -96,7 +119,13 @@ public class UserController {
 
     @Operation(summary = "修改住戶資料", description = "透過 userId 修改住戶資料")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "成功"),
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = User.class))
+                            )
+                    }),
             @ApiResponse(responseCode = "404", description = "無此 住戶 ID，無法執行修改功能", content = {
                     @Content()
             })

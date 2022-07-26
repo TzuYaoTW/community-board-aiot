@@ -26,20 +26,52 @@ public class BoardController {
     private BoardService boardService;
 
     @Operation(summary = "取得公佈欄資料", description = "透過board_id取得公佈欄資料")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = Board.class))
+                            )
+                    })
+    })
     @GetMapping("/board/{boardId}")
     public ResponseEntity<Board> getBoardById(@PathVariable Integer boardId){
         Board board = boardService.getBoardById(boardId);
         return ResponseEntity.status(HttpStatus.OK).body(board);
     }
 
+
+
+
     @Operation(summary = "取得所有公佈欄資訊", description = "取得所有公佈欄資訊")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = Board.class))
+                            )
+                    })
+    })
     @GetMapping("/board")
     public ResponseEntity<List<Board>> getBoards() {
         List<Board> boardList = boardService.getBoards();
         return ResponseEntity.status(HttpStatus.OK).body(boardList);
     }
 
+
+
     @Operation(summary = "新增公佈欄訊息", description = "新增公佈欄訊息")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = Board.class))
+                            )
+                    })
+    })
     @PostMapping("/board")
     public ResponseEntity<Board> createBoard(@RequestBody @Valid BoardRequest boardRequest) {
         Integer boardId = boardService.createBoard(boardRequest);
@@ -47,8 +79,11 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.OK).body(board);
     }
 
+
+
+    @Operation(summary = "修改公佈欄訊息", description = "透過 boardId 查詢訊息後修改訊息")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK",
+            @ApiResponse(responseCode = "200", description = "成功",
                     content = {
                             @Content(
                                     mediaType = "application/json",
@@ -59,7 +94,6 @@ public class BoardController {
                     @Content()
             })
     })
-    @Operation(summary = "修改公佈欄訊息", description = "透過 boardId 查詢訊息後修改訊息")
     @PutMapping("/board/{boardId}")
     public ResponseEntity<Board> updateBoard(@PathVariable Integer boardId,
                                              @RequestBody @Valid BoardRequest boardRequest) {
@@ -75,6 +109,12 @@ public class BoardController {
     }
 
     @Operation(summary = "刪除公佈欄訊息", description = "透過 boardId 刪除已存在訊息")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = {
+                            @Content()
+                    })
+    })
     @DeleteMapping("/board/{boardId}")
     public ResponseEntity<Board> deleteBoard(@PathVariable Integer boardId) {
         boardService.deleteBoard(boardId);

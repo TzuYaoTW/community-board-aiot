@@ -3,6 +3,7 @@ package com.tzuyao.communityboardaiot.controller;
 import com.tzuyao.communityboardaiot.dto.PackageQueryParams;
 import com.tzuyao.communityboardaiot.dto.PackageRequest;
 import com.tzuyao.communityboardaiot.model.Package;
+import com.tzuyao.communityboardaiot.model.User;
 import com.tzuyao.communityboardaiot.service.PackageService;
 import com.tzuyao.communityboardaiot.util.Page;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,9 +41,13 @@ public class PackageController {
             "依照前端請求limit限制每頁筆數(預設5)；" +
             "依照前端請求offset設定跳過筆數(預設0，代表第一頁)；" +
             "回傳總數count讓前端計算分頁。")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "成功")
-    })
+    @ApiResponse(responseCode = "200", description = "成功",
+            content = {
+                    @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = Package.class))
+                    )
+            })
     @GetMapping("/packages")
     public ResponseEntity<Page<Package>> getPackages(@RequestParam(required = false) @Parameter(description = "住戶地址") String address,
                                                      @RequestParam(required = false) @Parameter(description = "住戶RFID CODE(當使用此方法時，會在業務邏輯強制把address設為null)") String rfid,
@@ -74,7 +79,13 @@ public class PackageController {
 
     @Operation(summary = "取得包裹資料", description = "透過package_id取得包裹資料並回傳前端")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "成功"),
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = Package.class))
+                            )
+                    }),
             @ApiResponse(responseCode = "404", description = "無此 包裹 ID，無法執行查詢功能", content = {
                     @Content()
             })
@@ -90,23 +101,36 @@ public class PackageController {
     }
 
     @Operation(summary = "新增包裹", description = "新增包裹資料")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "成功")
-    })
+    @ApiResponse(responseCode = "200", description = "成功",
+            content = {
+                    @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = Package.class))
+                    )
+            })
     @PostMapping("/packages")
-    public ResponseEntity<Package> createPackage(@RequestBody @Valid @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "請求參數列表") PackageRequest packageRequest,
-                                                 @RequestParam(defaultValue = "0") @Parameter(description = "包裹狀態(已領取/未領取)") String state) {
+    public ResponseEntity<Package> createPackage(@RequestBody @Valid @io.swagger.v3.oas.annotations.parameters.
+            RequestBody(description = "請求參數列表") PackageRequest packageRequest,
+                                                 @RequestParam(defaultValue = "0")
+                                                 @Parameter(description = "包裹狀態(已領取/未領取)") String state) {
         Integer packageId = packageService.createPackage(packageRequest, state);
         Package updatePackage = packageService.getPackageById(packageId);
 
         return ResponseEntity.status(HttpStatus.OK).body(updatePackage);
     }
 
+
     @Operation(summary = "修改包裹資料(修改包裹為已領取狀態)", description = "" +
             "透過 package_id 修改包裹資料，" +
             "透過RequestParam String state調整包裹狀態(即領取包裹)")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "成功"),
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = Package.class))
+                            )
+                    }),
             @ApiResponse(responseCode = "404", description = "無此 包裹 ID，無法執行修改功能", content = {
                     @Content()
             })

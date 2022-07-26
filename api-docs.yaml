@@ -8,6 +8,8 @@ servers:
 tags:
 - name: 人臉辨識
   description: 接收RaspberryPi人臉辨識結果，將其結果取得住戶相關資料
+- name: RFID CRUD
+  description: 管理員可以新增查詢修改刪除關於RFID的資料
 - name: 住戶 CRUD
   description: 管理員可以新增查詢修改刪除關於住戶的資料
 - name: 住戶包裹 CRUD
@@ -34,11 +36,13 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: 成功
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
     put:
       tags:
       - 住戶 CRUD
@@ -48,27 +52,29 @@ paths:
       parameters:
       - name: userId
         in: path
+        description: 住戶user_id
         required: true
         schema:
           type: integer
           format: int32
       requestBody:
+        description: 請求參數列表
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/UserRequest'
         required: true
       responses:
+        "404":
+          description: 無此 住戶 ID，無法執行修改功能
         "200":
-          description: OK
+          description: 成功
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
-        "404":
-          description: 無此 住戶 ID，無法執行修改功能
     delete:
       tags:
       - 住戶 CRUD
@@ -78,17 +84,84 @@ paths:
       parameters:
       - name: userId
         in: path
+        description: 住戶user_id
         required: true
         schema:
           type: integer
           format: int32
       responses:
         "200":
-          description: OK
+          description: 成功
+  /rfids/{rfidId}:
+    get:
+      tags:
+      - RFID CRUD
+      summary: 取得RFID資料
+      description: 透過rfid_id取的資料並回傳前端
+      operationId: getRfidById
+      parameters:
+      - name: rfidId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: 成功
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rfid'
+    put:
+      tags:
+      - RFID CRUD
+      summary: 修改RFID資料
+      description: 透過rfid_id修改RFID資料數據
+      operationId: updateRfid
+      parameters:
+      - name: rfidId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        description: 請求參數列表
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RfidRequest'
+        required: true
+      responses:
+        "404":
+          description: 無此 RFID ID，無法執行修改功能
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rfid'
+    delete:
+      tags:
+      - RFID CRUD
+      summary: 刪除RFID資料
+      description: 透過rfid_id刪除RFID資料數據
+      operationId: deleteRfid
+      parameters:
+      - name: rfidId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: 成功
   /packages/{packageId}:
     get:
       tags:
@@ -99,13 +172,14 @@ paths:
       parameters:
       - name: packageId
         in: path
+        description: 包裹id
         required: true
         schema:
           type: integer
           format: int32
       responses:
         "200":
-          description: OK
+          description: 成功
           content:
             application/json:
               schema:
@@ -123,33 +197,36 @@ paths:
       parameters:
       - name: packageId
         in: path
+        description: 包裹id
         required: true
         schema:
           type: integer
           format: int32
       - name: state
         in: query
+        description: 包裹狀態(已領取/未領取)
         required: false
         schema:
           type: string
           default: "0"
       requestBody:
+        description: 請求參數列表
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PackageRequest'
         required: true
       responses:
-        "404":
-          description: 無此 包裹 ID，無法執行修改功能
         "200":
-          description: OK
+          description: 成功
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Package'
+        "404":
+          description: 無此 包裹 ID，無法執行修改功能
     delete:
       tags:
       - 住戶包裹 CRUD
@@ -159,17 +236,14 @@ paths:
       parameters:
       - name: packageId
         in: path
+        description: 包裹id
         required: true
         schema:
           type: integer
           format: int32
       responses:
         "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Package'
+          description: 成功
   /facilities/{facilityId}:
     get:
       tags:
@@ -186,11 +260,13 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: 成功
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: '#/components/schemas/Facility'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Facility'
     put:
       tags:
       - 公共設施租借 CRUD
@@ -212,7 +288,7 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: 成功
           content:
             application/json:
               schema:
@@ -236,11 +312,7 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Facility'
+          description: 成功
   /board/{boardId}:
     get:
       tags:
@@ -257,11 +329,13 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: 成功
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: '#/components/schemas/Board'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Board'
     put:
       tags:
       - 公佈欄 CRUD
@@ -282,16 +356,16 @@ paths:
               $ref: '#/components/schemas/BoardRequest'
         required: true
       responses:
+        "404":
+          description: 無此 公佈欄訊息 ID，無法執行修改功能
         "200":
-          description: OK
+          description: 成功
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Board'
-        "404":
-          description: 無此 公佈欄訊息 ID，無法執行修改功能
     delete:
       tags:
       - 公佈欄 CRUD
@@ -307,11 +381,7 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Board'
+          description: 成功
   /admins/{adminId}:
     get:
       tags:
@@ -329,7 +399,7 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
+          description: 成功
           content:
             application/json:
               schema:
@@ -353,6 +423,7 @@ paths:
           type: integer
           format: int32
       requestBody:
+        description: 請求參數列表
         content:
           application/json:
             schema:
@@ -360,9 +431,13 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: 成功
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Admin'
         "404":
           description: 無此管理員 ID
     delete:
@@ -381,11 +456,7 @@ paths:
           format: int32
       responses:
         "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
+          description: 成功
   /users:
     get:
       tags:
@@ -396,23 +467,27 @@ paths:
       parameters:
       - name: search
         in: query
+        description: 關鍵字搜尋(住戶姓名)
         required: false
         schema:
           type: string
       - name: orderBy
         in: query
+        description: 根據所選欄位排序
         required: false
         schema:
           type: string
           default: created_date
       - name: sort
         in: query
+        description: 排序方式
         required: false
         schema:
           type: string
           default: desc
       - name: limit
         in: query
+        description: 限制資料筆數
         required: false
         schema:
           maximum: 1000
@@ -422,6 +497,7 @@ paths:
           default: 5
       - name: offset
         in: query
+        description: 跳過資料筆數
         required: false
         schema:
           minimum: 0
@@ -430,11 +506,13 @@ paths:
           default: 0
       responses:
         "200":
-          description: OK
+          description: 成功
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: '#/components/schemas/PageUser'
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
     post:
       tags:
       - 住戶 CRUD
@@ -442,6 +520,7 @@ paths:
       description: 新增住戶資料，完成後回傳新增的住戶資訊
       operationId: createUser
       requestBody:
+        description: 請求參數列表
         content:
           application/json:
             schema:
@@ -449,44 +528,108 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: 成功
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /rfids:
+    get:
+      tags:
+      - RFID CRUD
+      summary: 取的RFID資料列表(模糊查詢地址、RFID CODE)
+      description: 可模糊查詢地址與RFID CODE，取得RFID資料列表
+      operationId: getRfidList
+      parameters:
+      - name: address
+        in: query
+        description: RFID擁有者地址
+        required: false
+        schema:
+          type: string
+      - name: rfid
+        in: query
+        description: RFID
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rfid'
+    post:
+      tags:
+      - RFID CRUD
+      summary: 新增RFID資料
+      description: 新增RFID資料並回傳新增的RFID資料數據
+      operationId: createRfid
+      requestBody:
+        description: 請求參數列表
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RfidRequest'
+        required: true
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rfid'
   /packages:
     get:
       tags:
       - 住戶包裹 CRUD
-      summary: 查詢包裹列表(模糊查詢+區隔領取與未領取+分頁+排序)
-      description: 透過模糊查詢地址取得包裹資料列表，可選擇查詢領取或未領取(預設未領取)，依照前端請求orderBy指定項目排序(預設為預定日期時間)，依照前端請求sort指定排序順序(預設DESC由新到舊排序)，依照前端請求limit限制每頁筆數(預設5)，依照前端請求offset設定跳過筆數(預設0，代表第一頁)。回傳總數count讓前端計算分頁。
+      summary: 查詢包裹列表(模糊查詢地址+區隔領取與未領取+分頁+排序)
+      description: 透過模糊查詢地址取得包裹資料列表；透過RFID CODE來抓取地址(一個住址可能有多個RFID，所以我只要使用其中一個RFID，就可以查到自己與同住家人的包裹；)，可選擇查詢領取或未領取(預設未領取)；依照前端請求orderBy指定項目排序(預設為預定日期時間)；依照前端請求sort指定排序順序(預設DESC由新到舊排序)；依照前端請求limit限制每頁筆數(預設5)；依照前端請求offset設定跳過筆數(預設0，代表第一頁)；回傳總數count讓前端計算分頁。
       operationId: getPackages
       parameters:
-      - name: search
+      - name: address
         in: query
+        description: 住戶地址
+        required: false
+        schema:
+          type: string
+      - name: rfid
+        in: query
+        description: 住戶RFID CODE(當使用此方法時，會在業務邏輯強制把address設為null)
         required: false
         schema:
           type: string
       - name: state
         in: query
+        description: 包裹狀態(未領取/已領取)
         required: false
         schema:
           type: string
           default: "0"
       - name: orderBy
         in: query
+        description: 排序對象
         required: false
         schema:
           type: string
           default: last_modified_date
       - name: sort
         in: query
+        description: 排序順序
         required: false
         schema:
           type: string
           default: DESC
       - name: limit
         in: query
+        description: 限制資料筆數
         required: false
         schema:
           maximum: 20
@@ -496,6 +639,7 @@ paths:
           default: 5
       - name: offset
         in: query
+        description: 跳過資料筆數
         required: false
         schema:
           minimum: 0
@@ -504,11 +648,13 @@ paths:
           default: 0
       responses:
         "200":
-          description: OK
+          description: 成功
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: '#/components/schemas/PagePackage'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Package'
     post:
       tags:
       - 住戶包裹 CRUD
@@ -518,11 +664,13 @@ paths:
       parameters:
       - name: state
         in: query
+        description: 包裹狀態(已領取/未領取)
         required: false
         schema:
           type: string
           default: "0"
       requestBody:
+        description: 請求參數列表
         content:
           application/json:
             schema:
@@ -530,11 +678,13 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: 成功
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: '#/components/schemas/Package'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Package'
   /facilities:
     get:
       tags:
@@ -545,11 +695,13 @@ paths:
       parameters:
       - name: name
         in: query
+        description: 租借者
         required: false
         schema:
           type: string
       - name: category
         in: query
+        description: 場地
         required: false
         schema:
           type: string
@@ -559,36 +711,43 @@ paths:
           - TABLE_TENNIS
       - name: day
         in: query
+        description: 租借日期
         required: false
         schema:
           type: string
       - name: time
         in: query
+        description: 租借時間
         required: false
         schema:
           type: string
       - name: today
         in: query
+        description: 可設定排除時間點
         required: false
         schema:
           type: string
       - name: orderBy
         in: query
+        description: 根據所選欄位排序
         required: false
         schema:
           type: string
           default: reserved_day
       - name: sort
         in: query
+        description: 排序方式
         required: false
         schema:
           type: string
           default: ASC
       responses:
+        "404":
+          description: 無此 RFID ID，無法執行修改功能
         "200":
-          description: OK
+          description: 成功
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -607,11 +766,13 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: 成功
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: '#/components/schemas/Facility'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Facility'
   /board:
     get:
       tags:
@@ -621,9 +782,9 @@ paths:
       operationId: getBoards
       responses:
         "200":
-          description: OK
+          description: 成功
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -642,11 +803,13 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: 成功
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: '#/components/schemas/Board'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Board'
   /admins:
     get:
       tags:
@@ -656,9 +819,9 @@ paths:
       operationId: getAdmins
       responses:
         "200":
-          description: OK
+          description: 成功
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -670,6 +833,7 @@ paths:
       description: 新增管理員資料
       operationId: createAdmin
       requestBody:
+        description: 請求參數列表
         content:
           application/json:
             schema:
@@ -677,32 +841,14 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: 成功
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: '#/components/schemas/Admin'
-  /chrome:
-    get:
-      tags:
-      - 人臉辨識
-      summary: 接收前端人臉辨識token，並且取得對應的住戶資料
-      description: 比較我傳出去的token和前端傳來的token(這個token是Raspberry Pi傳給前端的)是一致的，用意是不希望有他人透過非人臉辨識途徑來拿到資料庫數據
-      operationId: getUserByFaceId
-      parameters:
-      - name: token
-        in: query
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
-  /Demo/pi:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Admin'
+  /raspberrypi:
     get:
       tags:
       - 人臉辨識
@@ -717,11 +863,40 @@ paths:
           type: string
       responses:
         "200":
-          description: OK
+          description: 成功
           content:
-            '*/*':
+            text/html:
               schema:
-                type: object
+                type: array
+                items:
+                  $ref: '#/components/schemas/Token'
+  /chrome:
+    get:
+      tags:
+      - 人臉辨識
+      summary: 接收前端人臉辨識token，並且取得對應的住戶資料
+      description: 比較後端傳出去的token和前端傳來的token(這個token是Raspberry Pi傳給前端的)是一致的，用意是不希望有他人透過非人臉辨識途徑來拿到資料庫數據
+      operationId: getUserByFaceId
+      parameters:
+      - name: token
+        in: query
+        description: token，令牌(通關密語)
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: 成功(token比對成功)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        "400":
+          description: token比對失敗
+        "404":
+          description: 資料庫沒有此筆數據
 components:
   schemas:
     UserRequest:
@@ -769,6 +944,46 @@ components:
         lastModifiedDate:
           type: string
           description: 住戶資料最後修改時間
+          format: date-time
+    RfidRequest:
+      required:
+      - rfidCode
+      - rfidName
+      - userAddress
+      type: object
+      properties:
+        userAddress:
+          type: string
+          description: 住戶地址
+        rfidName:
+          type: string
+          description: RFID使用者
+        rfidCode:
+          type: string
+          description: RFID編號
+    Rfid:
+      type: object
+      properties:
+        rfidId:
+          type: integer
+          description: RFID流水號
+          format: int32
+        userAddress:
+          type: string
+          description: 住戶地址
+        rfidName:
+          type: string
+          description: RFID擁有者
+        rfidCode:
+          type: string
+          description: RFID ID
+        createdDate:
+          type: string
+          description: RFID 資料創建時間
+          format: date-time
+        lastModifiedDate:
+          type: string
+          description: RFID 資料最後修改時間
           format: date-time
     PackageRequest:
       required:
@@ -988,43 +1203,5 @@ components:
           type: string
           description: 管理員資料最後修改時間
           format: date-time
-    PageUser:
+    Token:
       type: object
-      properties:
-        limit:
-          type: integer
-          description: 限制資料庫回傳筆數(每個分頁要顯示幾筆數據)
-          format: int32
-        offset:
-          type: integer
-          description: 跳過幾筆數據(例如limit預設=5，第一頁offset=0，第二頁offset=5....)
-          format: int32
-        total:
-          type: integer
-          description: 查詢結果筆數，計算分頁數量用
-          format: int32
-        results:
-          type: array
-          description: 住戶資料集
-          items:
-            $ref: '#/components/schemas/User'
-    PagePackage:
-      type: object
-      properties:
-        limit:
-          type: integer
-          description: 限制資料庫回傳筆數(每個分頁要顯示幾筆數據)
-          format: int32
-        offset:
-          type: integer
-          description: 跳過幾筆數據(例如limit預設=5，第一頁offset=0，第二頁offset=5....)
-          format: int32
-        total:
-          type: integer
-          description: 查詢結果筆數，計算分頁數量用
-          format: int32
-        results:
-          type: array
-          description: 住戶資料集
-          items:
-            $ref: '#/components/schemas/Package'
