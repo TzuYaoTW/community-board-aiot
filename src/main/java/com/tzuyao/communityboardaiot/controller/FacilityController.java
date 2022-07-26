@@ -5,8 +5,10 @@ import com.tzuyao.communityboardaiot.dto.FacilityQueryParams;
 import com.tzuyao.communityboardaiot.dto.FacilityRequest;
 import com.tzuyao.communityboardaiot.model.Admin;
 import com.tzuyao.communityboardaiot.model.Facility;
+import com.tzuyao.communityboardaiot.model.Rfid;
 import com.tzuyao.communityboardaiot.service.FacilityService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -38,14 +40,26 @@ public class FacilityController {
             "可以排除掉已過期資料(也可以全部都顯示)，" +
             "依照前端請求orderBy指定項目排序(預設為預定日期時間)，" +
             "依照前端請求sort指定排序順序(預設ASC由小到大排序)，")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = Facility.class))
+                            )
+                    }),
+            @ApiResponse(responseCode = "404", description = "無此 RFID ID，無法執行修改功能", content = {
+                    @Content()
+            })
+    })
     @GetMapping("/facilities")
-    public ResponseEntity<List<Facility>> getFacilities(@RequestParam(required = false) String name,
-                                                        @RequestParam(required = false) FacilityCategory category,
-                                                        @RequestParam(required = false) String day,
-                                                        @RequestParam(required = false) String time,
-                                                        @RequestParam(required = false) String today,
-                                                        @RequestParam(defaultValue = "reserved_day") String orderBy,
-                                                        @RequestParam(defaultValue = "ASC") String sort){
+    public ResponseEntity<List<Facility>> getFacilities(@RequestParam(required = false) @Parameter(description = "租借者") String name,
+                                                        @RequestParam(required = false) @Parameter(description = "場地") FacilityCategory category,
+                                                        @RequestParam(required = false) @Parameter(description = "租借日期") String day,
+                                                        @RequestParam(required = false) @Parameter(description = "租借時間") String time,
+                                                        @RequestParam(required = false) @Parameter(description = "可設定排除時間點") String today,
+                                                        @RequestParam(defaultValue = "reserved_day") @Parameter(description = "根據所選欄位排序") String orderBy,
+                                                        @RequestParam(defaultValue = "ASC") @Parameter(description = "排序方式") String sort){
         FacilityQueryParams facilityQueryParams = new FacilityQueryParams();
         facilityQueryParams.setUserName(name);
         facilityQueryParams.setFacilityCategory(category);

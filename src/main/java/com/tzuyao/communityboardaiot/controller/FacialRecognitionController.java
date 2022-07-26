@@ -5,6 +5,12 @@ import com.tzuyao.communityboardaiot.model.User;
 import com.tzuyao.communityboardaiot.service.FacialRecognitionService;
 import com.tzuyao.communityboardaiot.util.Token;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,7 +29,16 @@ public class FacialRecognitionController {
     @Operation(summary = "接收Raspberry Pi的人臉辨識答案", description = "" +
             "將人臉辨識答案轉變為token，並且存至Java Bean(方便後續比對)，" +
             "並且回傳token給Raspberry Pi")
-    @GetMapping("/Demo/pi")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content = {
+                            @Content(
+                                    mediaType = "text/html",
+                                    array = @ArraySchema(schema = @Schema(implementation = Token.class))
+                            )
+                    })
+    })
+    @GetMapping("/raspberrypi")
     public ResponseEntity<?> setFacialRecognition(@RequestParam String user) {
         FacialRecognition.setFacialRecognitionId(user);
         System.out.println(user);
@@ -35,10 +50,25 @@ public class FacialRecognitionController {
     }
 
     @Operation(summary = "接收前端人臉辨識token，並且取得對應的住戶資料", description = "" +
-            "比較我傳出去的token和前端傳來的token(這個token是Raspberry Pi傳給前端的)是一致的，" +
+            "比較後端傳出去的token和前端傳來的token(這個token是Raspberry Pi傳給前端的)是一致的，" +
             "用意是不希望有他人透過非人臉辨識途徑來拿到資料庫數據")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "成功(token比對成功)",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = User.class))
+                            )
+                    }),
+            @ApiResponse(responseCode = "404", description = "資料庫沒有此筆數據", content = {
+                    @Content()
+            }),
+            @ApiResponse(responseCode = "400", description = "token比對失敗", content = {
+                    @Content()
+            })
+    })
     @GetMapping("/chrome")
-    public ResponseEntity<?> getUserByFaceId(@RequestParam String token) {
+    public ResponseEntity<?> getUserByFaceId(@Parameter(description = "token，令牌(通關密語)") @RequestParam String token) {
         if (FacialRecognition.getToken().equals(token)) {
             System.out.println("token比對成功");
             String faceId = FacialRecognition.getFacialRecognitionId();
@@ -53,6 +83,4 @@ public class FacialRecognitionController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-
-
 }

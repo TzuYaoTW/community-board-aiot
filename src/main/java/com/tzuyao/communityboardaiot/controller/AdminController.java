@@ -28,6 +28,7 @@ public class AdminController {
 
     @Autowired
     private AdminService adminService;
+
     // 查詢管理員列表
     @Operation(summary = "取得所有管理員", description = "取得所有管理員資料")
     @GetMapping("/admins")
@@ -38,13 +39,13 @@ public class AdminController {
 
     @Operation(summary = "透過adminId查詢管理員資料", description = "透過adminId查詢管理員資料")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK",
-                    content = {
-                            @Content(
-                                    mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = Admin.class))
-                            )
-                    }),
+            @ApiResponse(responseCode = "200", description = "成功",
+            content ={
+                    @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = Admin.class))
+                    )
+            }),
             @ApiResponse(responseCode = "404", description = "無此管理員 ID ", content = {
                     @Content()
             })
@@ -60,9 +61,20 @@ public class AdminController {
         }
     }
 
+
+
     @Operation(summary = "新增管理員資料", description = "新增管理員資料")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "成功",
+                    content ={
+                            @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = Admin.class))
+                            )
+                    })
+    })
     @PostMapping("/admins")
-    public ResponseEntity<Admin> createAdmin(@RequestBody @Valid AdminRequest adminRequest) {
+    public ResponseEntity<Admin> createAdmin(@RequestBody @Valid @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "請求參數列表") AdminRequest adminRequest) {
 
         Integer adminId = adminService.createAdmin(adminRequest);
 
@@ -72,6 +84,11 @@ public class AdminController {
     }
 
     @Operation(summary = "刪除管理員資料", description = "透過adminId刪除管理員資料")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "成功", content = {
+                    @Content()
+            })
+    })
     @DeleteMapping("/admins/{adminId}")
     public ResponseEntity<?> deleteAdmin(@Parameter(description = "管理員 ID 編號") @PathVariable Integer adminId) {
 
@@ -82,19 +99,19 @@ public class AdminController {
 
     @Operation(summary = "修改管理員資料", description = "透過adminId先查詢是否存在，如存在該筆數據，執行修改；最後再使用adminId重新查詢該筆數據後回傳")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK",
-                    content = {
-                            @Content(
-                                    mediaType = "application/json"
-                            )
-                    }),
+            @ApiResponse(responseCode = "200", description = "成功", content = {
+                    @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = Admin.class))
+                    )
+            }),
             @ApiResponse(responseCode = "404", description = "無此管理員 ID", content = {
                     @Content()
             })
     })
     @PutMapping("/admins/{adminId}")
     public ResponseEntity<Admin> updateAdmin(@Parameter(description = "管理員 ID 編號") @PathVariable Integer adminId,
-                                             @RequestBody @Valid AdminRequest adminRequest) {
+                                             @RequestBody @Valid @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "請求參數列表") AdminRequest adminRequest) {
         Admin admin = adminService.getAdminById(adminId);
         if (admin == null) {
             System.out.println("測試, adminId:" + adminId + " 不存在");
