@@ -46,7 +46,7 @@ public class PackageController {
                                                      @RequestParam(defaultValue = "5") @Max(20) @Min(0) Integer limit,
                                                      @RequestParam(defaultValue = "0") @Min(0) Integer offset) {
         PackageQueryParams packageQueryParams = new PackageQueryParams();
-        packageQueryParams.setSearch(search);
+        packageQueryParams.setSearchByAddress(search);
         packageQueryParams.setState(state);
         packageQueryParams.setOrderBy(orderBy);
         packageQueryParams.setSort(sort);

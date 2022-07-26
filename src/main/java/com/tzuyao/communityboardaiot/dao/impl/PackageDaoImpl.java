@@ -24,6 +24,7 @@ public class PackageDaoImpl implements PackageDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
+    // 查詢包裹列表
     public List<Package> getPackages(PackageQueryParams packageQueryParams) {
         String sql = "SELECT package_id, user_address, package_name, package_number, " +
                 "package_state, created_date, last_modified_date FROM package WHERE 1=1";
@@ -44,6 +45,7 @@ public class PackageDaoImpl implements PackageDao {
     }
 
     @Override
+    // 計算查詢包裹列表資料筆數
     public Integer countPackage(PackageQueryParams packageQueryParams) {
 
         String sql = "SELECT COUNT(*) FROM package WHERE 1=1";
@@ -58,6 +60,7 @@ public class PackageDaoImpl implements PackageDao {
     }
 
     @Override
+    // 查詢包裹(透過package_id)
     public Package getPackageById(Integer packageId) {
         String sql = "SELECT package_id, user_address, package_name, package_number, " +
                 "package_state, created_date, last_modified_date FROM `package` " +
@@ -76,6 +79,7 @@ public class PackageDaoImpl implements PackageDao {
     }
 
     @Override
+    // 新建包裹資料
     public Integer createPackage(PackageRequest packageRequest, String state) {
         String sql = "INSERT INTO `package`(user_address, package_name, package_number, package_state, " +
                 "created_date, last_modified_date) VALUES(:userAddress, :packageName, :packageNumber, :packageState, " +
@@ -99,6 +103,7 @@ public class PackageDaoImpl implements PackageDao {
     }
 
     @Override
+    // 刪除包裹資料(透過package_id)
     public void deletePackage(Integer packageId) {
         String sql = "DELETE FROM package WHERE package_id = :packageId;";
         Map<String, Object> map = new HashMap<>();
@@ -107,6 +112,7 @@ public class PackageDaoImpl implements PackageDao {
     }
 
     @Override
+    // 修改包裹資料(透過package_id)
     public void updatePackage(PackageRequest packageRequest, Integer packageId, String state) {
         String sql = "UPDATE `package` SET user_address = :userAddress, package_name = :packageName, " +
                 "package_number = :packageNumber, package_state = :packageState, " +
@@ -121,12 +127,12 @@ public class PackageDaoImpl implements PackageDao {
 
         namedParameterJdbcTemplate.update(sql, map);
     }
-
+    // 提煉程式(sql 語法)
     private String addFilteringSql(String sql, Map<String, Object> map, PackageQueryParams packageQueryParams) {
-        if (packageQueryParams.getSearch() != null){
+        if (packageQueryParams.getSearchByAddress() != null){
             sql = sql + " AND user_address LIKE :search";
-            map.put("search", "%" + packageQueryParams.getSearch() + "%");
-            System.out.println(packageQueryParams.getSearch());
+            map.put("search", "%" + packageQueryParams.getSearchByAddress() + "%");
+            System.out.println(packageQueryParams.getSearchByAddress());
         }
 
         sql = sql + " AND package_state = :state";
