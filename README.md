@@ -3,7 +3,7 @@
 > 原先的資策會AIOT期末專案後端使用的是Java Servlet+JSP
 >
 > 此repository將之改寫為Spring Boot架構
->
+> 
 > 附上OpenAPI文件(ymal檔，api-docs.yaml)，可複製至 [https://editor.swagger.io/](https://editor.swagger.io/ "Swagger Editor 線上版")  觀看
 
 # 開發環境
@@ -68,6 +68,9 @@
 	1. 接收人臉辨識結果(RaspberryPi)，並且回傳token
 	2. 接收前端token，比對RaspberryPi的token是否一致，並且取得相對應住戶資料
 
+----------
+### 圖片示意
 
+![](https://github.com/TzuYaoTW/community-board-aiot/blob/main/API%E6%96%87%E4%BB%B6%E7%A4%BA%E6%84%8F%E5%9C%96.png?raw=true)
 
 ### 持續新增中
